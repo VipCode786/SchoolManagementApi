@@ -1,0 +1,113 @@
+const Student = require('../models/student.js');
+const Parent = require('../models/parent.js');
+
+// Controller function to create a new student with parent info
+const createStudent = async (req, res) => {
+    const { firstName, lastName, address, className, classTeacher, parent } = req.body;
+ console.log("firstName",firstName)
+ console.log("lastName",lastName)
+ console.log("address",address)
+ console.log("parent.email",parent.email)
+ console.log("parent.phone",parent.phone)
+    // Check if the student is already registered
+
+
+// // Find all students whose parent's email contains 'example.com'
+// Student.find({  
+//         "firstName":firstName,
+//       "lastName":lastName})
+//   .populate({path: 'parent',
+//   match: { "parent.email": parent.email }}) // populate the 'parent' field with the parent document
+// //   .where('parent.email').regex(/example.com$/i) // filter based on the parent's email field
+//   .then((students) => {
+//     console.log("student",students)
+//     if (students.length <=0) {
+     
+//       res.status(500).json({ message: 'An error occurred while searching for students' });
+//     } else {
+//       console.log('Found students:', students);
+//       res.status(200).json({ message: 'Students found', data: students });
+//     }
+//   });
+
+
+ 
+
+    Student.findOne({
+      "firstName":firstName,
+      "lastName":lastName,
+    //   'parent.email': parent.email,
+    //   $or: [{ 'parent.phone': parent.phone }],
+    }).then((foundStudent) => {
+        console.log("foundStudent",foundStudent)
+        if (foundStudent!=null) {
+          res.status(409).json({
+            status: 'error',
+            message: 'This student is already registered',
+          });
+        } else {
+          // Check if the parent exists in the database
+          Parent.findOne({ $or: [{ email: parent.email }, { phone: parent.phone }] })
+            .then((foundParent) => {
+              if (foundParent) {
+                // If the parent exists, create a new student record
+                const newStudent = new Student({
+                  firstName,
+                  lastName,
+                  address,
+                  className,
+                  classTeacher,
+                  parent: foundParent._id,
+                });
+                newStudent.save()
+                  .then((savedStudent) => {
+                    res.status(201).json({ status: 'success', data: savedStudent });
+                  })
+                  .catch((err) => {
+                    res.status(500).json({ status: 'error', message: err.message });
+                  });
+              } else {
+                // If the parent does not exist, create a new parent record and then create a new student record
+                const newParent = new Parent({
+                  firstName: parent.firstName,
+                  lastName: parent.lastName,
+                  email: parent.email,
+                  phone: parent.phone,
+                  address: parent.address,
+                  school: parent.school,
+                });
+                newParent.save()
+                  .then((savedParent) => {
+                    const newStudent = new Student({
+                      firstName,
+                      lastName,
+                      address,
+                      className,
+                      classTeacher,
+                      parent: savedParent._id,
+                    });
+                    newStudent.save()
+                      .then((savedStudent) => {
+                        res.status(201).json({ status: 'success', data: savedStudent });
+                      })
+                      .catch((err) => {
+                        res.status(500).json({ status: 'error', message: err.message });
+                      });
+                  })
+                  .catch((err) => {
+                    res.status(500).json({ status: 'error', message: err.message });
+                  });
+              }
+            })
+            .catch((err) => {
+              res.status(500).json({ status: 'error', message: err.message });
+            });
+        }
+      })
+      .catch((err) => {
+        res.status(500).json({ status: 'error', message: err.message });
+      });
+    
+};
+
+module.exports = { createStudent };
