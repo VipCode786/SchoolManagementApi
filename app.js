@@ -2,7 +2,9 @@ const express = require('express');
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const connectDB = require('./config/database');
-const studentRoutes = require('./routes/studentRoutes');
+const studentRoutes = require('./routes/student/studentRoutes');
+const instituteRoutes = require('./routes/institute/instituteRoutes')
+const instructorRoutes = require('./routes/instructor/instructorRoutes')
 
 dotenv.config();
 
@@ -25,6 +27,8 @@ connectDB()
 //   });
 
 app.use('/api/students', studentRoutes);
+app.use('/api/institute',instituteRoutes);
+app.use('/api/instructor',instructorRoutes)
 
 app.listen(PORT, () => {
   console.log(`Server is listening on port ${PORT}`);

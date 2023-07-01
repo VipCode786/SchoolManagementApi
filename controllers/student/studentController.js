@@ -1,22 +1,19 @@
-const Student = require('../models/student.js');
-const Parent = require('../models/parent.js');
+const Student = require('../../models/student.js');
+const Parent = require('../../models/parent.js');
 
 // Controller function to create a new student with parent info
 const createStudent = async (req, res) => {
     const { firstName, lastName, address, className, classTeacher, parent } = req.body;
-
-
-
  
 
-    Student.findOne({
+    Student.find({
       "firstName":firstName,
       "lastName":lastName,
-    //   'parent.email': parent.email,
-    //   $or: [{ 'parent.phone': parent.phone }],
-    }).populate({path:"parent", match:{ $or: [{ email: parent.email }, { phone: parent.phone }] }}).then((foundStudent) => {
-        console.log("foundStudent",foundStudent)
-        if (foundStudent!=null) {
+    }).populate({path:"parent", match:{ $or: [{ email: parent.email }, { phone: parent.phone }] }}).then((foundStudents) => {
+      // Filtered Student check exists or not
+      const filteredStudent = foundStudents.filter((student) => student.parent !== null);
+        console.log("foundStudent",filteredStudent)
+        if (filteredStudent.length > 0) {
           res.status(409).json({
             status: 'error',
             message: 'This student is already registered',
@@ -86,4 +83,23 @@ const createStudent = async (req, res) => {
     
 };
 
-module.exports = { createStudent };
+const updateStudent = async(req, res) => {
+  const id = req.params.id;
+  const update = req.body;
+  
+  Student.findOneAndUpdate({ _id: id }, update, { new: true })
+    .populate('parent')
+    .then((student) => {
+      if (!student) {
+        return res.status(404).json({ message: 'Student not found' });
+      }
+      res.status(200).json({ message: 'Student updated', data: student });
+    })
+    .catch((error) => {
+      console.log(error);
+      res.status(500).json({ message: 'Internal server error' });
+    });
+};
+
+
+module.exports = { createStudent,updateStudent };

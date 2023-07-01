@@ -1,0 +1,36 @@
+// Import required modules and models
+const Instructor = require('../../models/instructor');
+
+// Create a router instance
+
+
+// Define the route for registering an instructor
+// router.post('/instructors', 
+exports.createInstructor = async (req, res) => {
+  try {
+    // Check if instructor already exists by email
+    const existingInstructor = await Instructor.findOne({ email: req.body.email });
+
+    // If instructor already exists, add new experience to existing experience array
+    if (existingInstructor) {
+      existingInstructor.experiences.push(req.body.experience);
+      await existingInstructor.save();
+      res.status(201).send(existingInstructor);
+    } else {
+      // If instructor does not exist, create a new instructor with experience array
+      const instructor = new Instructor({
+        name: req.body.name,
+        email: req.body.email,
+        phone: req.body.phone,
+        experiences: [req.body.experience]
+      });
+      await instructor.save();
+      res.status(201).send(instructor);
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Server Error');
+  }
+};
+
+

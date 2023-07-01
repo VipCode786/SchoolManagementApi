@@ -25,6 +25,7 @@ const studentSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Parent'
   }
+  
 });
 
 const Student = mongoose.model('Student', studentSchema);
