@@ -1,11 +1,38 @@
 const mongoose = require('mongoose');
 
 const parentSchema = new mongoose.Schema({
-  firstName: {
+  firstNameFather: {
     type: String,
     required: true
   },
-  lastName: {
+  middleNameFather: {
+    type: String
+  },
+  lastNameFather: {
+    type: String,
+    required: true
+  },
+
+  firstNameMother: {
+    type: String,
+    required: true
+  },
+  middleNameMother: {
+    type: String
+  },
+  lastNameMother: {
+    type: String,
+    required: true
+  },
+
+  firstNameGuardian: {
+    type: String,
+    required: true
+  },
+  middleNameGuardian: {
+    type: String
+  },
+  lastNameGuardian: {
     type: String,
     required: true
   },
@@ -13,11 +40,41 @@ const parentSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  email: {
+  dobFather: {
+    type: Date,
+    required: true
+  },
+  dobMother: {
+    type: Date,
+    required: true
+  },
+  dobGuardian: {
     type: String,
     required: true
   },
-  phone: {
+
+  emailFather: {
+    type: String,
+    required: true
+  },
+  phoneFather: {
+    type: String,
+    required: true
+  },
+
+  emailMother: {
+    type: String,
+    required: true
+  },
+  phoneMother: {
+    type: String,
+    required: true
+  },
+  emailGuardian: {
+    type: String,
+    required: true
+  },
+  phoneGuardian: {
     type: String,
     required: true
   }

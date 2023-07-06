@@ -13,8 +13,13 @@ const studentSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  className: {
-    type: String,
+  dob: {
+    type: Date,
+    required: true
+  },
+  courseId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Course',
     required: true
   },
   classTeacher: {
@@ -24,8 +29,16 @@ const studentSchema = new mongoose.Schema({
   parent: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Parent'
-  }
-  
+  },
+  currentInstitute: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Institute',
+    required: true
+  },
+  previousInstitutes: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Institute'
+  }]
 });
 
 const Student = mongoose.model('Student', studentSchema);

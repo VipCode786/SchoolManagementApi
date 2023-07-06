@@ -66,7 +66,7 @@ exports.updateInstitute = async (req, res) => {
     institute.address = req.body.address;
     institute.phone = req.body.phone;
     institute.email = req.body.email;
-    institute.courses = req.body.courses;
+    // institute.courses = req.body.courses;
     await institute.save();
     res.json(institute);
   } catch (err) {
