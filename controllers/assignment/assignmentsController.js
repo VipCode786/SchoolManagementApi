@@ -1,9 +1,9 @@
 const Course = require("../../models/courseSchema");
-const Homework = require("../../models/homeWork");
+const Assignment = require("../../models/assignment");
 const Institute = require("../../models/institute");
 const Student = require("../../models/student");
 
-exports.createHomework = async (req, res) => {
+exports.createAssignment = async (req, res) => {
     try {
       const { title, description, deadline, courseId, instituteId } = req.body;
   
@@ -19,7 +19,7 @@ exports.createHomework = async (req, res) => {
       const students = await Student.find({ courseId, currentInstitute: instituteId });
   
       // Create the homework document
-      const homework = new Homework({
+      const assignment = new Assignment({
         title,
         description,
         deadline,
@@ -39,7 +39,7 @@ exports.createHomework = async (req, res) => {
       });
   
       // Save the homework document
-      await homework.save();
+      await assignment.save();
   
       res.status(201).json({ success: true, message: 'Homework created and assigned successfully.' });
     } catch (error) {
@@ -54,14 +54,14 @@ exports.createHomework = async (req, res) => {
       const { homeworkId, studentId, submissionDate, file } = req.body;
   
       // Check if the homework exists
-      const homework = await Homework.findOne({ _id: homeworkId });
+      const assignment = await Assignment.findOne({ _id: homeworkId });
   
-      if (!homework) {
+      if (!assignment) {
         return res.status(404).json({ success: false, message: 'Homework not found.' });
       }
   
       // Find the submission for the specified student
-      const submission = homework.submissions.find(sub => sub.studentId.toString() === studentId);
+      const submission = assignment.submissions.find(sub => sub.studentId.toString() === studentId);
   
       if (!submission) {
         return res.status(404).json({ success: false, message: 'Submission not found.' });

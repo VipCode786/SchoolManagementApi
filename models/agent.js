@@ -1,22 +1,32 @@
 const mongoose = require('mongoose');
-const { default: addressSchema } = require('./utils/addressSchema');
 const Address = require('./utils/addressSchema');
-// const AutoIncrement = require('mongoose-sequence')(mongoose);
+const counterId = require("../models/utils/counterId");
+const bcrypt = require('bcrypt');
 
-module.exports = Address;
 
 
-const instituteSchema = new mongoose.Schema({
-  // InstituteId: Number,
-instituteName: {
+const agentSchema = new mongoose.Schema({
+
+ firstName: {
     type: String,
-    required: [true,"FirstName is required"]
+    required: [true,"FirstName is required"],
+    trim:true
   },
-
+  middleName:{
+    type: String,
+    trim:true
+  },
+  lastName: {
+    type: String,
+    required: true,
+    required: [true,"LastName is required"],
+    trim:true
+  },
   email: {
     type: String,
     required: [true,'Email is required'],
     unique: true,
+    trim:true,
     caseInsensitive:true,
     validate: {
         validator: function (email) {
@@ -32,7 +42,8 @@ instituteName: {
   phone:{
     type: String,
     required: [true,'Phone is required'],
-    unique: true
+    unique: true,
+    trim:true,
   },
 
   password: {
@@ -40,6 +51,7 @@ instituteName: {
     required: [true,'Password is required'],
     minlength: [6, 'Minimum 6 Characters'],
     maxLength: [12,"Maximum 12 characters"],
+    trim:true,
     validate: {
       validator: function (value) {
         // At least one capital letter, one small letter, one numeric, and one special character
@@ -58,17 +70,43 @@ instituteName: {
     },
   },
 
-  isVerifiedInstitute:{
+  isVerifiedAgent:{
     type:Boolean,
     default:false,
   },
-  isPaidInstitute:{
-    type: Boolean,
-    default:false
+  isSuperAdminAgent:{
+    type:Boolean,
+    default:false,
+  },
+  address: {
+    type: Address.schema, // Use the address schema as a subdocument
+    required: true
+  },
+  assignInstitutes: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Institute'
+  }],
+  allAgentAccess:{
+    type:Boolean,
+    default:false,
   }
 });
 
-// instituteSchema.plugin(AutoIncrement);
-const Institute = mongoose.model('Institute', instituteSchema);
 
-module.exports = Institute;
+agentSchema.pre('save', async function (next) {
+  try {
+    if (!this.isModified('password')) {
+      return next();
+    }
+    const salt = await bcrypt.genSalt(10);
+    this.password = await bcrypt.hash(this.password, salt);
+    next();
+  } catch (err) {
+    return next(err);
+  }
+});
+
+
+const Agent = mongoose.model('Agent', agentSchema);
+
+module.exports = Agent;

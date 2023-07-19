@@ -1,39 +1,50 @@
 const Institute = require('../../models/institute');
+const AppErrors = require('../../utils/errorss/appError');
+const catchAsync = require('../../utils/errorss/catchAsync');
 
-exports.createInstitute = async (req, res) => {
+exports.createInstitute = catchAsync(async (req, res,next) => {
 
-    
-    try {
+  const {
+    instituteName,
+    email,
+    phone,
+    password,
+    address
+  } = req.body
+   
         // Check if an institute with the same name and address exists
         const existingInstitute = await Institute.findOne({
           $or: [
-            { name: req.body.name, address: req.body.address },
-            { phone: req.body.phone },
-            { email: req.body.email }
+            { instituteName: instituteName,},
+            { phone: phone },
+            { email: email,
+            }
           ]
         });
+
+        console.log("Existing existingInstitute ", (existingInstitute))
         if (existingInstitute) {
-          return res.status(400).json({ message: 'An institute with the same name, address, phone or email already exists.' });
+           return next(new AppErrors(300, 'Institute Already Registered'));
+          // return next(new AppErrors(400, 'Invalid Email')); 
+        //  return res.status(400).json({ message: 'An institute with the same name, address, phone or email already exists.' });
         }
     else{
         // Create a new institute
         const institute = new Institute({
-          name: req.body.name,
-          address: req.body.address,
-          phone: req.body.phone,
-          email: req.body.email,
-          courses: req.body.courses
+          instituteName,
+          email,
+          phone,
+          password,
+          address
+         
         });
     
         // Save the institute to the database
         await institute.save();
-        res.status(201).json(institute);
+        res.status(201).json({message:"Institute Created"});
     }
-      } catch (err) {
-        console.error(err);
-        res.status(500).json({ message: 'Server Error' });
-      }
-};
+     
+})
 
 exports.getInstitutes = async (req, res) => {
   try {

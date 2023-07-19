@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 const connectDB = async () => {
   try {
-    await mongoose.connect('mongodb://localhost/school-management-system', {
+    await mongoose.connect(process.env.DB_URI, {
     //   useNewUrlParser: true,
     //   useUnifiedTopology: true,
     //   useCreateIndex: true,
@@ -16,5 +16,7 @@ const connectDB = async () => {
     process.exit(1);
   }
 };
+
+
 
 module.exports = connectDB;
