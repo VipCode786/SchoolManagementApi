@@ -77,6 +77,11 @@ const parentSchema = new mongoose.Schema({
   phoneGuardian: {
     type: String,
     required: true
+  },
+  currentInstitute: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Institute',
+    required: true
   }
 });
 

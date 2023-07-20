@@ -13,17 +13,31 @@ const userSchema = new mongoose.Schema({
   },
   password: {
     type: String,
-    required: true
+    required: [true,'Password is required'],
+    minlength: [6, 'Minimum 6 Characters'],
+    maxLength: [12,"Maximum 12 characters"],
+    trim:true,
+    validate: {
+      validator: function (value) {
+        // At least one capital letter, one small letter, one numeric, and one special character
+        const hasCapitalLetter = /[A-Z]/.test(value);
+        const hasSmallLetter = /[a-z]/.test(value);
+        const hasNumeric = /\d/.test(value);
+        const hasSpecialChar = /[!@#$%^&*()]/.test(value);
+  
+        if (!(hasCapitalLetter && hasSmallLetter && hasNumeric && hasSpecialChar)) {
+          throw new Error('Password must contain at least one capital letter, one small letter, one numeric, and one special character');
+        }
+        
+        return true;
+      },
+      message: 'Invalid password',
+    },
   },
   userId: {
     type: mongoose.Schema.Types.ObjectId,
     required: true,
     refPath: 'role'
-  },
-  currentInstitute: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Institute',
-    required: true
   },
   role: {
     type: String,

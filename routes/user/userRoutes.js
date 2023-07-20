@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const userController = require('../../controllers/user/userController');
-const {authMiddleware} = require('../../utils/autorization/autorization');
+const {isAuth} = require('../../utils/autorization/autorization');
 
 // POST /register
 
@@ -38,7 +38,7 @@ const {authMiddleware} = require('../../utils/autorization/autorization');
  *       500:
  *         description: Internal server error
  */
-router.post('/register',authMiddleware, userController.registerUser);
+router.post('/register', userController.registerUser);
 router.post('/signIn', userController.signIn);
 
 module.exports = router;

@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const agentController = require('../../controllers/agent/agentController');
-const { authMiddleware, isSuperAdmin } = require('../../utils/autorization/autorization');
+const {  isSuperAdmin, isAuth } = require('../../utils/autorization/autorization');
 const auditLogFun = require('../../utils/auditLog/auditLogFun');
 
 // @route GET /api/agent
@@ -233,7 +233,7 @@ router.post('/', auditLogFun('create', 'Agent'),agentController.createAgent);
  *         description: Internal server error
  */
 
-router.put('/updateAgentInfo/:id',(authMiddleware||isSuperAdmin), agentController.updateAgent);
+router.put('/updateAgentInfo/:id',(isAuth||isSuperAdmin), agentController.updateAgent);
 
 // @route DELETE /agent/:id
 // @desc Delete Agent by ID
@@ -290,10 +290,10 @@ router.delete('/:id', agentController.deleteAgent);
  *       500:
  *         description: Internal server error
  */
-router.post('/login', agentController.login);
+router.post('/login',auditLogFun('Agent_Login', 'Agent'), agentController.login);
 
 
 
-router.put('/assignInstituteToAgent', agentController.updateAssignInstitutes)
+router.put('/assignInstituteToAgent',isAuth,isSuperAdmin,auditLogFun('update', 'Agent'), agentController.updateAssignInstitutes)
 
 module.exports = router;

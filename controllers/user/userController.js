@@ -4,49 +4,98 @@ const Parent = require('../../models/parent');
 const Admin = require('../../models/admin');
 const Instructor = require('../../models/instructor');
 const Student = require('../../models/user');
-const  {generateToken}   = require('../../utils/autorization/autorization')
+const  {generateToken}   = require('../../utils/autorization/autorization');
+const Agent = require('../../models/agent');
+const catchAsync = require('../../utils/errorss/catchAsync');
 
-exports.registerUser = async (req, res) => {
-  const { email, phone, password, role, currentInstitute } = req.body;
+// exports.registerUser = async (req, res) => {
+//   const { email, phone, password, role, currentInstitute } = req.body;
 
-  try {
-    // Check if the provided email or phone already exists in the respective collections
+//   try {
+//     // Check if the provided email or phone already exists in the respective collections
+//     let existingUser;
+//     if (role === 'Parent') {
+//       existingUser = await Parent.findOne({ $or: [{ email }, { phone }] });
+//     } else if (role === 'Admin') {
+//       existingUser = await Admin.findOne({ $or: [{ email }, { phone }] });
+//     } else if (role === 'Instructor') {
+//       existingUser = await Instructor.findOne({ $or: [{ email }, { phone }] });
+//     } else if (role === 'Student') {
+//       existingUser = await Student.findOne({ $or: [{ email }, { phone }] });
+//     }
+
+//     if (existingUser) {
+//       return res.status(409).json({ message: 'User already exists.' });
+//     }
+
+//     // Hash the password
+//     // const hashedPassword = await bcrypt.hash(password, 10);
+
+//     // Create a new user record in the User collection
+//     const newUser = new User({
+//       email,
+//       phone,
+//       password,
+//       role,
+//       currentInstitute
+//     });
+
+//     await newUser.save();
+
+//     res.status(201).json({ message: 'User registered successfully.' });
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({ message: 'Internal server error.' });
+//   }
+// };
+
+exports.registerUser= catchAsync (async (req, res) => {
+    const { email, password, phone, role  } = req.body;
+
+    // Check if the user exists in the relevant schema
     let existingUser;
-    if (role === 'Parent') {
-      existingUser = await Parent.findOne({ $or: [{ email }, { phone }] });
-    } else if (role === 'Admin') {
-      existingUser = await Admin.findOne({ $or: [{ email }, { phone }] });
-    } else if (role === 'Instructor') {
-      existingUser = await Instructor.findOne({ $or: [{ email }, { phone }] });
-    } else if (role === 'Student') {
-      existingUser = await Student.findOne({ $or: [{ email }, { phone }] });
+    switch (lowerCase(role)) {
+      case 'parent':
+        existingUser = await Parent.findOne({ email });
+        break;
+      case 'student':
+        existingUser = await Student.findOne({ email });
+        break;
+      case 'instructor':
+        existingUser = await Instructor.findOne({ email });
+        break;
+      case 'agent':
+        existingUser = await Agent.findOne({ email });
+        break;
+      default:
+        // return res.status(400).json({ message: 'Invalid userType' });
+       return  next(new AppErrors(400, 'Invalid userType'));
+      }
+
+    if (!existingUser) {
+      return res.status(404).json({ message: 'User does not exist in the relevant schema' });
     }
 
-    if (existingUser) {
-      return res.status(409).json({ message: 'User already exists.' });
-    }
-
-    // Hash the password
+    // User exists, proceed with registration
     // const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Create a new user record in the User collection
-    const newUser = new User({
+    const user = new User({
       email,
-      phone,
       password,
+      phone,
       role,
-      currentInstitute
+      userId:existingUser._id,
+      // address,
+      // userType,
+      // instituteIds,
+      // userSchemaType: userType,
+      // originalUserId: existingUser._id,
     });
 
-    await newUser.save();
-
-    res.status(201).json({ message: 'User registered successfully.' });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Internal server error.' });
-  }
-};
-
+    await user.save();
+    res.status(201).json({ message: 'User registered successfully' });
+ 
+})
 
 exports.signIn = async (req, res) => {
     const { email, password } = req.body;

@@ -5,9 +5,9 @@ const mongoose = require('mongoose');
 const auditLogSchema = new mongoose.Schema({
   operation_type: { type: String, required: true },
   timestamp: { type: Date, required: true },
-  user_id: { type: mongoose.Schema.Types.ObjectId },
+  user_id: { type: mongoose.Schema.Types.ObjectId,required:true },
   schema_name: { type: String, required: true },
-  record_id: { type: mongoose.Schema.Types.ObjectId, required: true }
+  record_id: { type: mongoose.Schema.Types.ObjectId, required: true,refPath: 'schema_name' }
 },
   {
     timestamps: true,

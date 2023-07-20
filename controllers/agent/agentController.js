@@ -85,9 +85,9 @@ exports.createAgent = catchAsync(async (req, res, next) => {
     lastName,
     email,
     phone,
-    password,
-    isVerified,
-    isSuperAdmin,
+    // password,
+    // isVerified,
+    // isSuperAdmin,
     address
   } = req.body;
 
@@ -97,14 +97,14 @@ exports.createAgent = catchAsync(async (req, res, next) => {
     lastName,
     email,
     phone,
-    password,
-    isVerified,
-    isSuperAdmin,
+    // password,
+    // isVerified,
+    // isSuperAdmin,
     address
   });
   // password: bcrypt.hashSync(req.body.password, 8),
    const createdAgent = await newAgent.save();
-   res.locals.createdAgent = { _id: createdAgent._id };
+   res.locals.createdAgent = { record_id: createdAgent._id , user_id: createdAgent._id };
     // console.log("res.locals.createdAgent controller---------------", res.locals.createdAgent);
   res.status(200).json({ message: 'Agent Created successfully' });
 });
@@ -191,6 +191,8 @@ exports.updateAssignInstitutes = catchAsync( async (req, res) => {
       return res.status(404).json({ message: 'Agent not found' });
     }
 
+    console.log("req----------",req.userToken.userToken._id)
+    res.locals.createdId = {user_id:req.userToken.userToken._id, record_id:result._id} 
     res.status(200).json({ message: 'Assign institutes updated successfully' });
  
 });
@@ -264,8 +266,11 @@ exports.login = catchAsync(async (req, res,next) => {
     return next(new AppErrors(400, 'Invalid Password'));  }
 
   // Password is correct, generate a JWT token
+  console.log(agent)
+  res.locals.createdId = { record_id: agent._id, user_id:agent._id  }
+  console.log("res.locals.createdAgent",res.locals.createdAgent)
   const token = generateToken(agent);
-
+  
   // Return the token in the response
   res.status(200).json({ token });
  
