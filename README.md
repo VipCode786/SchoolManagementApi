@@ -1,1 +1,1 @@
-if parent exist then search parent id in student and their curent institute id 
+A school / institute /coaching management api 
